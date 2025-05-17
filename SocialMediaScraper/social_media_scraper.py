@@ -13,7 +13,8 @@ def initialize_browser():
         with custom user agent and without loading images for optimization
     """
     options = Options()
-    options.add_argument("--headless")
+    options.add_argument("--headless=new")
+    options.add_argument("--window-size=1920,1080")
     options.add_argument("--disable-gpu")
     options.add_argument("--no-sandbox")
     options.add_argument("--blink-settings=imagesEnabled=false")
@@ -23,10 +24,16 @@ def initialize_browser():
 
     driver = webdriver.Chrome(options=options)
     driver.get("https://www.youtube.com/watch?v=VQRLujxTm3c")
+
+    # Wait for comment section container
+    WebDriverWait(driver, 15).until(
+        EC.presence_of_element_located((By.CSS_SELECTOR, "#comments"))
+    )
+
     return driver
 
 
-def scroll_to_load_comments(driver, scroll_pause=1, max_scrolls=2):
+def scroll_to_load_comments(driver, scroll_pause=1, max_scrolls=3):
     """
         This function scrolls the page down to load some comments.
     """
@@ -39,7 +46,7 @@ def scroll_to_load_comments(driver, scroll_pause=1, max_scrolls=2):
 
         # Try to wait for at least one new comment
         try:
-            WebDriverWait(driver, 10).until(
+            WebDriverWait(driver, 20).until(
                 EC.presence_of_element_located((By.CSS_SELECTOR, "ytd-comment-thread-renderer"))
             )
         except:
